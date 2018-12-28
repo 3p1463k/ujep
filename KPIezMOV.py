@@ -18,8 +18,7 @@ import shutil
 
 import pyperclip
 
-path = ' U:\\FOR_VALIDATION\\VPC2\\KPI\\LEVEL_1\\Pt·Ëek Evûen\\ '
-
+path = ' U:\\FOR_VALIDATION\\VPC2\\KPI\\LEVEL_1\\Pt√°√®ek Ev≈æen\\ '
 
 os.chdir(path)
 
@@ -29,8 +28,6 @@ oldest = files[0]
 newest = files[-1]
 
 pyperclip.copy(oldest[11:26]
-
-)
 
 shutil.move (oldest,"C:\\Users\\anotator\\Desktop\\KPI\\")
 
