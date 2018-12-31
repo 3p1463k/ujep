@@ -68,10 +68,10 @@ class Root(Tk):
             #cudlik4 = driver.find_element_by_id('        ')
             #cudlik4.click()
 
-        fpatw = open("/home/evzen/doc/kpi/folderPATH.txt", "w+")
+        fpatw = open("C:\Users\Anotator\Desktop\VAL\fil\data\folderPATH.txt", "w+")
         fpatw.write(pat2fol1)
         fpatw.close()
-        filewritetxt2 = open("/home/evzen/doc/kpi/dataimport2.txt", "w+")
+        filewritetxt2 = open("C:\Users\Anotator\Desktop\VAL\fil\data\dataimport2.txt", "w+")
         filewritetxt2.write(pat2fol2)
         filewritetxt2.close()
 
@@ -147,9 +147,9 @@ class Root(Tk):
          self.label4 = ttk.Label(self, background="#E5CB21", foreground="black", text="Password AudiTool")
          self.label4.place(x=120, y=290)
 
-         fpatr = open("/home/evzen/doc/kpi/folderPATH.txt", "r")
-         unameAudi = open("/home/evzen/doc/kpi/unameAudi.txt", "r")
-         cesta2 = open("/home/evzen/doc/kpi/dataimport2.txt", "r")
+         fpatr = open("C:\Users\Anotator\Desktop\VAL\fil\data\folderPATH.txt", "r")
+         unameAudi = open("C:\Users\Anotator\Desktop\VAL\fil\data\unameAudi.txt", "r")
+         cesta2 = open("C:\Users\Anotator\Desktop\VAL\fil\data\dataimport2.txt", "r")
 
 
          self.textbox1 = ttk.Entry(self, width=30, textvariable = self.namedir1)
