@@ -2,7 +2,7 @@ import os
 import shutil
 import pyperclip
 
-def makmov():
+def move_oldest_file():
     path = 'U:\\'
 
     os.chdir(path)
@@ -14,4 +14,4 @@ def makmov():
     for oldest in files:
         shutil.move(oldest, "  ")
         break
-makmov()
+move_oldest_file()
