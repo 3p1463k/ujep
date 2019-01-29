@@ -16,7 +16,7 @@ write_pid = open("/home/evzen/doc/kpi/data/P4pid.txt", "w")
 P4pid_str = str(P4pid)
 write_pid.write(P4pid_str)
 write_pid.close()
-print(P4pid)
+print("PID: " + P4pid_str)
 
 def job1():
 
@@ -35,7 +35,7 @@ def job1():
 	print(y)
 	#print("From:"  path1, "To:", path2, timestamp[:19])
 
-	if x > 0 and y < 6:
+	if x > 0 and y < 3:
 
 		os.chdir(path1)
 		files = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
@@ -45,27 +45,27 @@ def job1():
 			shutil.move(oldest, path2)
 			sleep(1)
 			append1 = open("/home/evzen/doc/kpi/data/ReportPremisteno.txt", "a")
-			append1.write("From:" + str(path1) + oldest + ' ' " To:" + str(path2) + oldest + ' ' + str(timestamp[:19]) + "\n")
+			append1.write("From " + str(path1) + oldest + ' ' " To " + str(path2) + oldest + ' ' + str(timestamp[:19]) + "\n")
 			append1.close()
 			sleep(1)
-
+			print("Premisteno: " + oldest)
 			break
 	elif x == 0:
 			append4 = open("/home/evzen/doc/kpi/data/Daily_log.txt", "a")
-			append4.write("Zastavuji PREMISTOVAC4: " + timestamp + "\n")
+			append4.write("Zastavuji PREMISTOVAC4 " + timestamp + "\n")
 			append4.close()
 			print('NO MORE TO MOVE')
 			#import ctypes  # An included library with Python install.
 			#ctypes.windll.user32.MessageBoxW(0, "Nemam vice videi", "PREMISTOVAC4", 1)
 			exit()
 
-def job2():
-
-	timestamp = str(datetime.now())
-	append2 = open("/home/evzen/doc/kpi/data/ReportPremisteno.txt", "a")
-	append2.write(str(timestamp[:19]) + "\n")
-	append2.close()
-	sleep(1)
+# def job2():
+#
+# 	timestamp = str(datetime.now())
+# 	append2 = open("/home/evzen/doc/kpi/data/ReportPremisteno.txt", "a")
+# 	append2.write(str(timestamp[:19]) + "\n")
+# 	append2.close()
+# 	sleep(1)
 
 
 def job3():
@@ -73,7 +73,8 @@ def job3():
 	path3 = '/home/evzen/doc/kpi/bakup/'
 	os.chdir(path3)
 	pocet_bakup = sum(os.path.isdir(folder) for folder in os.listdir(path3))
-	print(pocet_bakup)
+	pocet_bak = str(pocet_bakup)
+	print("Pocet bakup:" + pocet_bak)
 
 	if pocet_bakup > 3:
 
@@ -84,15 +85,16 @@ def job3():
 		for oldest in folders:
 			timestamp = str(datetime.now())
 			append3 = open("/home/evzen/doc/kpi/data/ReportVymazano.txt", "a")
-			append3.write("Smazano video :" + oldest + str(timestamp[:19]) + "\n")
+			append3.write("Smazano video " + oldest + str(timestamp[:19]) + "\n")
 			append3.close()
+			print("Vymazano: " + " " + oldest)
 			shutil.rmtree(oldest)
 			break
 
 
 #schedule.every().day.at("15:40").do(job2)
 #schedule.every().hour.do()
-#schedule.every(1).minute.do(job3)
+schedule.every(10).seconds.do(job3)
 #schedule.every(1).minute.do(job1)
 schedule.every(15).seconds.do(job1)
 

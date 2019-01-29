@@ -16,21 +16,21 @@ from selenium.webdriver.common.by import By
 import glob
 from pathlib import Path
 
-file_to_overwrite = '/home/evzen/Desktop/WEBOupdate.txt'
-my_file = Path("/home/evzen/doc/kpi/data/WEBOupdate.txt")
-
-if my_file.is_file():
-    shutil.copy2(my_file, file_to_overwrite)
-    print(my_file)
-      
-
-    sleep(0.5)
-
-    exit()
-
-
-else:
-    pass
+# file_to_overwrite = '/home/evzen/Desktop/WEBOupdate.txt'
+# my_file = Path("/home/evzen/doc/kpi/data/WEBOupdate.txt")
+#
+# if my_file.is_file():
+#     shutil.copy2(my_file, file_to_overwrite)
+#     print(my_file)
+#
+#
+#     sleep(0.5)
+#
+#     exit()
+#
+#
+# else:
+#     pass
 
 
 class Root(Tk):
@@ -81,21 +81,23 @@ class Root(Tk):
     def nacist_video(self):
 
         bakup_folder = '/home/evzen/doc/kpi/bakup/'
-        plocha = '/home/evzen/Desktop/'
-        file_to_move = open("/home/evzen/doc/kpi/data/vystrih_videa.txt", "r")
-        x = file_to_move.read()
-        print(x)
-        list_of_directory = glob.iglob('/home/evzen/Desktop/*')
-
-        for i in list_of_directory:
-            if x in i:
-                print(i)
-                shutil.move(i, bakup_folder)
-        else:
-            pass
+        #plocha = '/home/evzen/Desktop/'
+        # file_to_move = open("/home/evzen/doc/kpi/data/vystrih_videa.txt", "r")
+        # x = file_to_move.read()
+        # print(x)
+        # list_of_directory = glob.iglob('/home/evzen/Desktop/*')
+        #
+        # for i in list_of_directory:
+        #     if x in i:
+        #         print(i)
+        #         shutil.move(i, bakup_folder)
+        # else:
+        #     pass
+        # sleep(1)
+        wlcome_info = msg.showinfo("HELLO", "WORLD")
         sleep(1)
-
-        path1 = '/home/evzen/Downloads/'
+        wlcome_info.destroy()
+        path1 = '/home/evzen/doc/a'
         os.chdir(path1)
         files = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
         oldest = files[0]
@@ -107,6 +109,9 @@ class Root(Tk):
         self.label5.configure(text=vystrih_videa, background='#336699')
         heslO = self.namedir4.get()
         feedhslo = str(heslO)
+        if not feedhslo :
+            msg.showerror("HOUSTON WE GOT PROBLEM" ,"ZADEJTE HESLO DO AUDI TOOL A ZNOVU ZMACKNETE NACIST VIDEO")
+            return
         audijmeno = self.namedir3.get()
         audiuser = str(audijmeno)
         print('Vystrih: ', vystrih_videa)
@@ -121,7 +126,7 @@ class Root(Tk):
         search_box.submit()
         sleep(0.05)
         driver.quit()
-        shutil.move(oldest, plocha)
+        shutil.move(oldest, bakup_folder)
         filewrtxt3 = open("/home/evzen/doc/kpi/data/unameAudi.txt", "w+")
         filewrtxt3.write(audiuser)
         filewrtxt3.close()
