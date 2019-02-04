@@ -1,13 +1,18 @@
 #!/usr/bin/env python
-from tkinter import *
+from tkinter  import *
 from tkinter import ttk
 from tkinter import messagebox as msg
+from tkinter import filedialog
 import os
 import shutil
 import psutil
 import time
 import subprocess
+from sys import executable
+#from subprocess import Popen, CREATE_NEW_CONSOLE
+from subprocess import Popen
 from time import sleep
+from datetime import datetime
 from selenium import webdriver
 import keyboard
 from keyboard import press
@@ -16,19 +21,23 @@ from selenium.webdriver.common.by import By
 import glob
 from pathlib import Path
 
-# file_to_overwrite = '/home/evzen/Desktop/WEBOupdate.txt'
-# my_file = Path("/home/evzen/doc/kpi/data/WEBOupdate.txt")
+kill_file = ("/home/evzen/doc/kpi/data/kill.txt")
+if os.path.exists(kill_file) == True:
+    os.unlink(kill_file)
+else:
+    print("NO KILL FILE")
+    pass
+
+# file_to_overwrite = ('/home/evzen/Desktop/WEBOupdate.txt')
+# my_file = ('/home/evzen/doc/kpi/data/WEBOupdate.txt')
 #
-# if my_file.is_file():
+# if os.path.exists(my_file) == True
 #     shutil.copy2(my_file, file_to_overwrite)
 #     print(my_file)
-#
-#
 #     sleep(0.5)
 #
 #     exit()
-#
-#
+
 # else:
 #     pass
 
@@ -38,107 +47,216 @@ class Root(Tk):
     def __init__(self):
         super(Root, self).__init__()
         self.title("WEB-O-MAT 4.0")
-        self.geometry("500x250+100+100")
+        self.geometry("580x420+100+100")
         self.configure(background='#222222')
         img = PhotoImage(file='/home/evzen/doc/kpi/data/icons/WEBOMAT.gif')
         self.tk.call('wm', 'iconphoto', self._w, img)
 
         self.initUI()
 
+    def find_info(self):
+
+        if not self.namedir5.get():
+            msg.showwarning("WEB-O-MAT4", "ZADEJTE CISLO VIDEA")
+            return
+        else:
+            filehandle1 = open("/home/evzen/doc/kpi/data/ReportPremisteno.txt", "r")
+            filehandle2 = open("/home/evzen/doc/kpi/data/ReportVymazano.txt", "r")
+
+            text = self.namedir5.get()
+            for i, line in enumerate(filehandle1, 1):
+                if text in line:
+                    self.label7.configure(text=line, background="#666666")
+                    print(line)
+                else:
+                    #msg.showinfo("WEB-)-MAT4", "NENALEZENO")
+                    pass
+            for j, line in enumerate(filehandle2, 1):
+                if text in line:
+                    self.label8.configure(text=line, background="#666666")
+                    print(line)
+                else:
+#                    msg.showinfo("WEB-)-MAT4", "NENALEZENO")
+                     pass
+
+    def ukoncit_program(self):
+        exit()
+    def otevri_file(self):
+        return filedialog.askopenfilename()
+
     def slozka1(self):
-        self.label1.configure(text = self.namedir1.get())
+        entry_path = self.namedir1.get()
+        if not entry_path:
+            msg.showwarning("WEB-O-MAT4 ERROR", "NEMATE VYPLNENY UDAJ O SLOZCE PRO PREMISTOVAC")
+            return
+        else:
+            slozka1_cesta1 = str(entry_path)
+            slozka1_zaznam = open("/home/evzen/doc/kpi/data/folderPATH.txt", "w+")
+            slozka1_zaznam.write(slozka1_cesta1)
+            slozka1_zaznam.close()
+            self.label1.configure(text=self.namedir1.get())
 
     def import_cesta(self):
-        self.label2.configure(text = self.namedir2.get())
+        self.label2.configure(text=self.namedir2.get())
 
     def user_name(self):
-        self.label3.configure(text = self.namedir3.get())
+        self.label3.configure(text=self.namedir3.get())
 
     def premistovac_on(self):
-        proc = subprocess.Popen(['python', '/home/evzen/doc/proj/valeujep/PREMISTOVAC4.py'], shell=False, stdin=None,
-                         stdout=subprocess.PIPE, stderr=open('/home/evzen/doc/kpi/data/P4errlogfile.log', 'a'))
-        pid = proc.pid
-        pids = str(pid)
-        print(pid)
-        zije = proc.poll()
-        pidwr = open("/home/evzen/doc/kpi/data/P4pid.txt", "w")
-        pidwr.write(pids)
-        pidwr.close()
-        print(zije)
-        if zije is None:
-            self.label2.configure(text='ZAPNUTO', background="#65B87A")
+
+        entry_path = self.namedir1.get()
+        if not entry_path:
+            msg.showwarning("WEB-O-MAT4 ERROR", "NEMATE VYPLNENY UDAJ O SLOZCE PRO PREMISTOVAC")
+            return
         else:
             pass
 
-        cesta_1 = open("/home/evzen/doc/kpi/data/folderPATH.txt", "r")
-        path1 = cesta_1.read()
-        os.chdir(path1)
-        x = sum(os.path.isdir(folder) for folder in os.listdir(path1))
-        pocet = str(x)
-        msg.showinfo("PREMISTOVAC4.0", "Startuji, ve slozce je " + pocet + " Videi k premisteni")
+        pidP4 = open("/home/evzen/doc/kpi/data/P4pid.txt", "r")
+        pidn = pidP4.read()
+        # print(pidn)
+        pidf = int(pidn)
+        # print(pidf)
+
+        if psutil.pid_exists(pidf):
+            msg.showinfo("PREMISTOVAC4.0", "PREMISTOVAC JE ZAPNUTY", )
+            print("a process with pid %d exists" % pidf)
+        else:
+            proc = subprocess.Popen(['python', '/home/evzen/doc/proj/valeujep/PREMISTOVAC4.py'], shell=False,
+                                    stdin=None, stdout=subprocess.PIPE,
+                                    stderr=open('/home/evzen/doc/kpi/data/P4errlogfile.log', 'a'))
+            pid = proc.pid
+            pids = str(pid)
+            print(pid)
+            zije = proc.poll()
+            pidwr = open("/home/evzen/doc/kpi/data/P4pid.txt", "w")
+            pidwr.write(pids)
+            pidwr.close()
+            print(zije)
+
+            if zije is None:
+                self.label2.configure(text='ZAPNUTO', background="#65B87A")
+            else:
+                self.label2.configure(text='ZAPNUTO', background="#65B87A")
+
+                #pass
+
+            cesta_1 = open("/home/evzen/doc/kpi/data/folderPATH.txt", "r")
+            path1 = cesta_1.read()
+            os.chdir(path1)
+            x = sum(os.path.isdir(folder) for folder in os.listdir(path1))
+            pocet = str(x)
+            self.label6.configure(text=pocet)
+            msg.showinfo("PREMISTOVAC4.0", "Startuji, pocet ve slozce k premisteni: " + pocet)
 
 
     def nacist_video(self):
 
         bakup_folder = '/home/evzen/doc/kpi/bakup/'
-        #plocha = '/home/evzen/Desktop/'
-        # file_to_move = open("/home/evzen/doc/kpi/data/vystrih_videa.txt", "r")
-        # x = file_to_move.read()
-        # print(x)
-        # list_of_directory = glob.iglob('/home/evzen/Desktop/*')
-        #
-        # for i in list_of_directory:
-        #     if x in i:
-        #         print(i)
-        #         shutil.move(i, bakup_folder)
-        # else:
-        #     pass
-        # sleep(1)
-        wlcome_info = msg.showinfo("HELLO", "WORLD")
-        sleep(1)
-        wlcome_info.destroy()
-        path1 = '/home/evzen/doc/a'
+        path1 = '/home/evzen/doc/kpi/kpi'
         os.chdir(path1)
-        files = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
-        oldest = files[0]
-        newest = files[-1]
-        vystrih_videa = oldest[11:26]
-        filewrtxt5 = open("/home/evzen/doc/kpi/data/vystrih_videa.txt", "w")
-        filewrtxt5.write(vystrih_videa)
-        filewrtxt5.close()
-        self.label5.configure(text=vystrih_videa, background='#336699')
-        heslO = self.namedir4.get()
-        feedhslo = str(heslO)
-        if not feedhslo :
-            msg.showerror("HOUSTON WE GOT PROBLEM" ,"ZADEJTE HESLO DO AUDI TOOL A ZNOVU ZMACKNETE NACIST VIDEO")
-            return
-        audijmeno = self.namedir3.get()
-        audiuser = str(audijmeno)
-        print('Vystrih: ', vystrih_videa)
-        driver = webdriver.Chrome()
-        #driver.service.process
-        driver.maximize_window()
-        driver.get('http://www.google.com/xhtml')
-        driver_pid = psutil.Process(driver.service.process.pid)
-        #print(driver_pid.children(recursive=True))
-        search_box = driver.find_element_by_name('q')
-        search_box.send_keys(feedhslo)
-        search_box.submit()
-        sleep(0.05)
-        driver.quit()
-        shutil.move(oldest, bakup_folder)
-        filewrtxt3 = open("/home/evzen/doc/kpi/data/unameAudi.txt", "w+")
-        filewrtxt3.write(audiuser)
-        filewrtxt3.close()
-        pidP4 = open("/home/evzen/doc/kpi/data/P4pid.txt", "r")
-        pidn = pidP4.read()
-        #print(pidn)
-        pidf = int(pidn)
-        #print(pidf)
-        if psutil.pid_exists(pidf):
-            print("a process with pid %d exists" % pidf)
-        else:
+        try:
+            files = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
+            oldest = files[0]
+            newest = files[-1]
+
+            vystrih_videa = oldest[11:26]
+            filewrtxt5 = open("/home/evzen/doc/kpi/data/vystrih_videa.txt", "w")
+            filewrtxt5.write(vystrih_videa)
+            filewrtxt5.close()
+            self.label5.configure(text=vystrih_videa, background='#336699')
+            heslO = self.namedir4.get()
+            feedhslo = str(heslO)
+            if not feedhslo:
+                msg.showerror("HOUSTON WE GOT PROBLEM", "ZADEJTE HESLO DO AUDI TOOL A ZNOVU ZMACKNETE NACIST VIDEO")
+                return
+            audijmeno = self.namedir3.get()
+            audiuser = str(audijmeno)
+            print('Vystrih: ', vystrih_videa)
+            driver = webdriver.Chrome()
+            #driver.service.process
+            driver.maximize_window()
+            driver.get('http://www.google.com/xhtml')
+            driver_pid = psutil.Process(driver.service.process.pid)
+            #print(driver_pid.children(recursive=True))
+            search_box = driver.find_element_by_name('q')
+            search_box.send_keys(feedhslo)
+            search_box.submit()
+            sleep(0.05)
+            driver.quit()
+            shutil.move(oldest, bakup_folder)
+            filewrtxt3 = open("/home/evzen/doc/kpi/data/unameAudi.txt", "w+")
+            filewrtxt3.write(audiuser)
+            filewrtxt3.close()
+            pidP4 = open("/home/evzen/doc/kpi/data/P4pid.txt", "r")
+            pidn = pidP4.read()
+            #print(pidn)
+            pidf = int(pidn)
+            #print(pidf)
+            if psutil.pid_exists(pidf):
+                print("a process with pid %d exists" % pidf)
+            else:
+                self.label2.configure(text='VYPNUTO', background="#CC0000")
+
+            # total = 0
+            # with open("/home/evzen/doc/kpi/data/dayreport.txt", "r") as my_file:
+            #     file_lines = my_file.readlines()
+            #     first_line = file_lines[0].strip()
+            #     z = len(first_line)
+            #     print(z)
+            #     self.z = StringVar
+            #     print(z)
+            #     self.label6.configure(textvariable=self.z)
+
+            cesta_1 = open("/home/evzen/doc/kpi/data/folderPATH.txt", "r")
+            path1 = cesta_1.read()
+            os.chdir(path1)
+            x = sum(os.path.isdir(folder) for folder in os.listdir(path1))
+            pocet = str(x)
+            self.label6.configure(text=pocet)
+
+
+
+        except IndexError:
+            files = None
+            msg.showwarning("WEB-O-MAT", "VE SLOZCE UZ NEJSOU VIDEA")
+
+    def uklizec_plochy(self):
+
+        try:
             self.label2.configure(text='VYPNUTO', background="#CC0000")
+            timestamp = str(datetime.now())
+            datum = timestamp[0:19]
+            pid_of_process_to_kill = open("/home/evzen/doc/kpi/data/kill.txt", "w")
+            pid_of_process_to_kill.close()
+            path1 = ("/home/evzen/doc/kpi/kpi")
+            path2 = open("/home/evzen/doc/kpi/data/folderPATH.txt")
+            cesta_2 = path2.read()
+            path2move_files = str(cesta_2)
+            print(path2move_files)
+            os.chdir(path1)
+            pocet_kpi = sum(os.path.isdir(folder) for folder in os.listdir(path1))
+            print("Přesunu " + str(pocet_kpi) + ' ' + datum)
+            pocet_videi = str(pocet_kpi)
+            sleep(1)
+            msg.showinfo("Zastavuji PŘEMÍSŤOVAČ4.0", "Uklidím plochu a přemístím zpet: " + pocet_videi)
+            sleep(1)
+
+            if pocet_kpi > 0:
+                x = os.path.isdir(path1)
+                if x:
+                    y = os.listdir(path1)
+                    for x in y:
+                        shutil.move(x, path2move_files)
+            else:
+                msg.showinfo("Zastavuji PŘEMÍSŤOVAČ4.0", "MAM UKLIZENO")
+                exit()
+            exit()
+        except (IndexError):
+            files = None
+            msg.showinfo("UKLIZEC4", "VE SLOZCE UZ NEJSOU VIDEA, UKONCUJI PREMISTOVAC, EXITING")
+            exit()
+
+
 
 
     def initUI(self):
@@ -146,28 +264,47 @@ class Root(Tk):
          self.namedir1 = StringVar()
          self.namedir3 = StringVar()
          self.namedir4 = StringVar()
+         self.namedir5 = StringVar()
 
-         self.button1 = ttk.Button(self, text="NACTI DALSI VIDEO", command = self.nacist_video)
+         self.button1 = ttk.Button(self, text="NACTI DALSI VIDEO", command=self.nacist_video)
          self.button1.place(x=350, y=10)
          self.button2 = ttk.Button(self, text="ZAPNI PREMISTOVACE", command=self.premistovac_on)
          self.button2.place(x=350, y=110)
+
          self.button3 = ttk.Button(self, text="ULOZIT Novou Cestu", command=self.slozka1)
          self.button3.place(x=10, y=45)
+         self.button4 = ttk.Button(self, text="JDU DOMU, UKLIĎ PLOCHU ", command=self.uklizec_plochy)
+         self.button4.place(x=350, y=190)
+
          self.button5 = ttk.Button(self, text="ULOZIT Username", command=self.user_name)
          self.button5.place(x=120, y=130)
+         self.button7 = ttk.Button(self, text="FILE EXPLORER", command=self.otevri_file)
+         self.button7.place(x=10, y=240)
 
-         self.label1 = ttk.Label(self, background="#65B87A", foreground="black",text="SLOZKA NA UCKU")
+         self.button8 = ttk.Button(self, text="VIDEO INFO", command=self.find_info)
+         self.button8.place(x=300, y=340)
+         self.button9 = ttk.Button(self, text="UKONCIT", command=self.ukoncit_program)
+         self.button9.place(x=490, y=390)
+
+         self.label1 = ttk.Label(self, background="#65B87A", foreground="black", text="SLOZKA NA UCKU")
          self.label1.place(x=10, y=25)
          self.label2 = ttk.Label(self, background="#CC0000", foreground="black", text="VYPNUTO")
          self.label2.place(x=350, y=150)
+
          self.label3 = ttk.Label(self, background="#FFCC00", foreground="black", text="Username AudiTool")
          self.label3.place(x=120, y=110)
          self.label4 = ttk.Label(self, background="#CC0000", foreground="black", text="Napis heslo do AudiTool")
          self.label4.place(x=120, y=180)
+
          self.label5 = ttk.Label(self, background="#336699", foreground="black", text="VYSTRIH  CISLA VIDEA")
          self.label5.place(x=350, y=40)
+         self.label6 = ttk.Label(self, background="#666666", foreground="black", text="0")
+         self.label6.place(x=350, y=60)
 
-
+         self.label7 = ttk.Label(self, background="#222222", foreground="black")
+         self.label7.place(x=10, y=370)
+         self.label8 = ttk.Label(self, background="#222222", foreground="black")
+         self.label8.place(x=10, y=390)
 
 
          unameAudi = open("/home/evzen/doc/kpi/data/unameAudi.txt", "r")
@@ -181,8 +318,11 @@ class Root(Tk):
          self.textbox3.place(x=10, y=110)
          self.textbox3.insert(END, unameAudi.read())
 
-         self.textbox4 = ttk.Entry(self, width=12, textvariable=self.namedir4, show = '*')
+         self.textbox4 = ttk.Entry(self, width=12, textvariable=self.namedir4, show='*')
          self.textbox4.place(x=10, y=180)
+         self.textbox4 = ttk.Entry(self, width=40, textvariable=self.namedir5)
+         self.textbox4.place(x=10, y=340)
+
 
 
 root = Root()
