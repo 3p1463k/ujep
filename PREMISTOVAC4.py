@@ -47,11 +47,17 @@ def job1():
 		files = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
 		oldest = files[0]
 		newest = files[-1]
+
+		#os.path.join(x)
+		#velikost_dat =
 		for oldest in files:
-			shutil.move(oldest, path2)
+			print(x)
+			shutil.move(os.path.join(path1, oldest), os.path.join(path2, oldest))
+			#shutil.move(oldest, path2)
 			append1 = open("/home/evzen/doc/kpi/data/ReportPremisteno.txt", "a")
 			append1.write(str(path1) + " " + oldest + "  " + str(path2) + " " + str(timestamp[:19]) + "\n")
 			append1.close()
+
 			print("Premisteno: " + oldest)
 			break
 	elif x == 0:
@@ -106,13 +112,21 @@ def job3():
 
 			break
 
+def job4():
+	report_file = open("/home/evzen/doc/kpi/data/dayreport.txt", "r")
+	report = report_file.read()
+	pocet_pro_graf = len(report)
+
+
+
+
+
 
 #schedule.every().day.at("15:40").do(job2)
-schedule.every(5).seconds.do(job2)
+schedule.every(10).minutes.do(job4)
 schedule.every(10).seconds.do(job3)
-#schedule.every(1).minute.do(job1)
+schedule.every(5).seconds.do(job2)
 schedule.every(12).seconds.do(job1)
-
 
 while 1:
 	schedule.run_pending()

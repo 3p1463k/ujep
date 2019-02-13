@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from tkinter  import *
+from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox as msg
 from tkinter import filedialog
@@ -9,7 +9,6 @@ import psutil
 import time
 import subprocess
 from sys import executable
-#from subprocess import Popen, CREATE_NEW_CONSOLE
 from subprocess import Popen
 from time import sleep
 from datetime import datetime
@@ -20,6 +19,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import glob
 from pathlib import Path
+from selenium.webdriver.chrome.options import Options
+from multiprocessing import Process
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+
 
 kill_file = ("/home/evzen/doc/kpi/data/kill.txt")
 if os.path.exists(kill_file) == True:
@@ -47,12 +51,29 @@ class Root(Tk):
     def __init__(self):
         super(Root, self).__init__()
         self.title("WEB-O-MAT 4.0")
-        self.geometry("580x420+100+100")
+        self.geometry("660x550+100+100")
         self.configure(background='#222222')
         img = PhotoImage(file='/home/evzen/doc/kpi/data/icons/WEBOMAT.gif')
         self.tk.call('wm', 'iconphoto', self._w, img)
 
+        self.matplotCanvas()
+
         self.initUI()
+
+
+    def matplotCanvas(self):
+        f = Figure(figsize=(3, 2), dpi=100)
+        a = f.add_subplot(111)
+        a.plot([1, 2, 3, 4, 5, 6, 7, 8], [5, 6, 1, 3, 8, 3, 3, 5], color="brown")
+
+        canvas = FigureCanvasTkAgg(f, self)
+        canvas.get_tk_widget().place(x=10, y=180)
+        toolbar = NavigationToolbar2Tk(canvas, self)
+        canvas._tkcanvas.place(x=10, y=200)
+
+
+
+
 
     def find_info(self):
 
@@ -76,7 +97,6 @@ class Root(Tk):
                     self.label8.configure(text=line, background="#666666")
                     print(line)
                 else:
-#                    msg.showinfo("WEB-)-MAT4", "NENALEZENO")
                      pass
 
     def ukoncit_program(self):
@@ -120,10 +140,16 @@ class Root(Tk):
         if psutil.pid_exists(pidf):
             msg.showinfo("PREMISTOVAC4.0", "PREMISTOVAC JE ZAPNUTY", )
             print("a process with pid %d exists" % pidf)
+            self.label2.configure(text='ZAPNUTO', background="#65B87A")
+
         else:
             proc = subprocess.Popen(['python', '/home/evzen/doc/proj/valeujep/PREMISTOVAC4.py'], shell=False,
                                     stdin=None, stdout=subprocess.PIPE,
                                     stderr=open('/home/evzen/doc/kpi/data/P4errlogfile.log', 'a'))
+            proc1 = subprocess.Popen(['python', '/home/evzen/doc/proj/script/guardian.py'], shell=False,
+                                    stdin=None, stdout=subprocess.PIPE,
+                                    stderr=open('/home/evzen/doc/kpi/data/guardian.log', 'a'))
+
             pid = proc.pid
             pids = str(pid)
             print(pid)
@@ -135,8 +161,11 @@ class Root(Tk):
 
             if zije is None:
                 self.label2.configure(text='ZAPNUTO', background="#65B87A")
+
+
             else:
-                self.label2.configure(text='ZAPNUTO', background="#65B87A")
+                self.label2.configure(text='VYPNUTO', background="#CC0000")
+
 
                 #pass
 
@@ -147,6 +176,7 @@ class Root(Tk):
             pocet = str(x)
             self.label6.configure(text=pocet)
             msg.showinfo("PREMISTOVAC4.0", "Startuji, pocet ve slozce k premisteni: " + pocet)
+
 
 
     def nacist_video(self):
@@ -176,26 +206,34 @@ class Root(Tk):
             #driver.service.process
             driver.maximize_window()
             driver.get('http://www.google.com/xhtml')
-            driver_pid = psutil.Process(driver.service.process.pid)
+            #driver_pid = psutil.Process(driver.service.process.pid)
             #print(driver_pid.children(recursive=True))
             search_box = driver.find_element_by_name('q')
             search_box.send_keys(feedhslo)
             search_box.submit()
             sleep(0.05)
             driver.quit()
-            shutil.move(oldest, bakup_folder)
-            filewrtxt3 = open("/home/evzen/doc/kpi/data/unameAudi.txt", "w+")
-            filewrtxt3.write(audiuser)
-            filewrtxt3.close()
-            pidP4 = open("/home/evzen/doc/kpi/data/P4pid.txt", "r")
-            pidn = pidP4.read()
-            #print(pidn)
-            pidf = int(pidn)
-            #print(pidf)
-            if psutil.pid_exists(pidf):
-                print("a process with pid %d exists" % pidf)
+            if os.path.isdir(os.path.join(bakup_folder, oldest)):
+                msg.showerror("WEBOMAT4.0", "CHYBA, SOUBOR UZ EXISTUJE")
+                return
             else:
-                self.label2.configure(text='VYPNUTO', background="#CC0000")
+                shutil.move(os.path.join(path1, oldest), os.path.join(bakup_folder, oldest))
+
+                filewrtxt3 = open("/home/evzen/doc/kpi/data/unameAudi.txt", "w+")
+                filewrtxt3.write(audiuser)
+                filewrtxt3.close()
+
+                pidP4 = open("/home/evzen/doc/kpi/data/P4pid.txt", "r")
+                pidn = pidP4.read()
+                #print(pidn)
+                pidf = int(pidn)
+                #print(pidf)
+                if psutil.pid_exists(pidf):
+                    print("a process with pid %d exists" % pidf)
+
+
+                else:
+                    self.label2.configure(text='VYPNUTO', background="#CC0000")
 
             # total = 0
             # with open("/home/evzen/doc/kpi/data/dayreport.txt", "r") as my_file:
@@ -207,18 +245,20 @@ class Root(Tk):
             #     print(z)
             #     self.label6.configure(textvariable=self.z)
 
-            cesta_1 = open("/home/evzen/doc/kpi/data/folderPATH.txt", "r")
-            path1 = cesta_1.read()
-            os.chdir(path1)
-            x = sum(os.path.isdir(folder) for folder in os.listdir(path1))
-            pocet = str(x)
-            self.label6.configure(text=pocet)
+                cesta_1 = open("/home/evzen/doc/kpi/data/folderPATH.txt", "r")
+                path1 = cesta_1.read()
+                os.chdir(path1)
+                x = sum(os.path.isdir(folder) for folder in os.listdir(path1))
+                pocet = str(x)
+                self.label6.configure(text=pocet)
+
 
 
 
         except IndexError:
             files = None
             msg.showwarning("WEB-O-MAT", "VE SLOZCE UZ NEJSOU VIDEA")
+
 
     def uklizec_plochy(self):
 
@@ -246,7 +286,7 @@ class Root(Tk):
                 if x:
                     y = os.listdir(path1)
                     for x in y:
-                        shutil.move(x, path2move_files)
+                        shutil.move(os.path.join(path1, x), os.path.join(path2move_files, x))
             else:
                 msg.showinfo("Zastavuji PŘEMÍSŤOVAČ4.0", "MAM UKLIZENO")
                 exit()
@@ -261,6 +301,9 @@ class Root(Tk):
 
     def initUI(self):
 
+
+
+
          self.namedir1 = StringVar()
          self.namedir3 = StringVar()
          self.namedir4 = StringVar()
@@ -269,32 +312,32 @@ class Root(Tk):
          self.button1 = ttk.Button(self, text="NACTI DALSI VIDEO", command=self.nacist_video)
          self.button1.place(x=350, y=10)
          self.button2 = ttk.Button(self, text="ZAPNI PREMISTOVACE", command=self.premistovac_on)
-         self.button2.place(x=350, y=110)
+         self.button2.place(x=350, y=90)
 
          self.button3 = ttk.Button(self, text="ULOZIT Novou Cestu", command=self.slozka1)
          self.button3.place(x=10, y=45)
          self.button4 = ttk.Button(self, text="JDU DOMU, UKLIĎ PLOCHU ", command=self.uklizec_plochy)
-         self.button4.place(x=350, y=190)
+         self.button4.place(x=350, y=150)
 
          self.button5 = ttk.Button(self, text="ULOZIT Username", command=self.user_name)
-         self.button5.place(x=120, y=130)
+         self.button5.place(x=120, y=110)
          self.button7 = ttk.Button(self, text="FILE EXPLORER", command=self.otevri_file)
-         self.button7.place(x=10, y=240)
+         self.button7.place(x=350, y=190)
 
          self.button8 = ttk.Button(self, text="VIDEO INFO", command=self.find_info)
-         self.button8.place(x=300, y=340)
+         self.button8.place(x=300, y=480)
          self.button9 = ttk.Button(self, text="UKONCIT", command=self.ukoncit_program)
-         self.button9.place(x=490, y=390)
+         self.button9.place(x=490, y=480)
 
          self.label1 = ttk.Label(self, background="#65B87A", foreground="black", text="SLOZKA NA UCKU")
          self.label1.place(x=10, y=25)
          self.label2 = ttk.Label(self, background="#CC0000", foreground="black", text="VYPNUTO")
-         self.label2.place(x=350, y=150)
+         self.label2.place(x=350, y=116)
 
          self.label3 = ttk.Label(self, background="#FFCC00", foreground="black", text="Username AudiTool")
-         self.label3.place(x=120, y=110)
+         self.label3.place(x=120, y=90)
          self.label4 = ttk.Label(self, background="#CC0000", foreground="black", text="Napis heslo do AudiTool")
-         self.label4.place(x=120, y=180)
+         self.label4.place(x=120, y=160)
 
          self.label5 = ttk.Label(self, background="#336699", foreground="black", text="VYSTRIH  CISLA VIDEA")
          self.label5.place(x=350, y=40)
@@ -302,26 +345,36 @@ class Root(Tk):
          self.label6.place(x=350, y=60)
 
          self.label7 = ttk.Label(self, background="#222222", foreground="black")
-         self.label7.place(x=10, y=370)
+         self.label7.place(x=10, y=420)
          self.label8 = ttk.Label(self, background="#222222", foreground="black")
-         self.label8.place(x=10, y=390)
+         self.label8.place(x=10, y=440)
 
 
          unameAudi = open("/home/evzen/doc/kpi/data/unameAudi.txt", "r")
          fpatr = open("/home/evzen/doc/kpi/data/folderPATH.txt", "r")
+         pidP4 = open("/home/evzen/doc/kpi/data/P4pid.txt", "r")
+         pidn = pidP4.read()
+         print(pidn)
+         pidf = int(pidn)
+         # print(pidf)
+         if psutil.pid_exists(pidf):
+             print("a process with pid %d exists" % pidf)
+             self.label2.configure(text='ZAPNUTO', background="#65B87A")
+         else:
+             pass
 
          self.textbox1 = ttk.Entry(self, width=30, textvariable=self.namedir1)
          self.textbox1.insert(END, fpatr.read())
          self.textbox1.place(x=10, y=5)
 
          self.textbox3 = ttk.Entry(self, width=12, textvariable=self.namedir3)
-         self.textbox3.place(x=10, y=110)
+         self.textbox3.place(x=10, y=90)
          self.textbox3.insert(END, unameAudi.read())
 
          self.textbox4 = ttk.Entry(self, width=12, textvariable=self.namedir4, show='*')
-         self.textbox4.place(x=10, y=180)
-         self.textbox4 = ttk.Entry(self, width=40, textvariable=self.namedir5)
-         self.textbox4.place(x=10, y=340)
+         self.textbox4.place(x=10, y=160)
+         self.textbox5 = ttk.Entry(self, width=40, textvariable=self.namedir5)
+         self.textbox5.place(x=10, y=480)
 
 
 
