@@ -123,7 +123,7 @@ def job4():
 
 
 #schedule.every().day.at("15:40").do(job2)
-schedule.every(10).minutes.do(job4)
+schedule.every(5).minutes.do(job4)
 schedule.every(10).seconds.do(job3)
 schedule.every(5).seconds.do(job2)
 schedule.every(12).seconds.do(job1)

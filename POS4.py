@@ -286,7 +286,11 @@ class Root(Tk):
                 if x:
                     y = os.listdir(path1)
                     for x in y:
-                        shutil.move(os.path.join(path1, x), os.path.join(path2move_files, x))
+                        if os.path.isdir(os.path.join(path2move_files, x)):
+                            msg.showerror("WEBOMAT4.0", "CHYBA, SOUBOR PRO PREMISTENI UZ EXISTUJE")
+                            return
+                        else:
+                            shutil.move(os.path.join(path1, x), os.path.join(path2move_files, x))
             else:
                 msg.showinfo("Zastavuji PŘEMÍSŤOVAČ4.0", "MAM UKLIZENO")
                 exit()
