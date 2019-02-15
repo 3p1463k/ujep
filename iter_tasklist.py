@@ -4,6 +4,11 @@ from sys import stdin
 ps = popen("C:/WINDOWS/system32/tasklist.exe","r")
 pp = ps.readlines()
 ps.close()
+for x in pp:
+  if "PREMISTOVAC" in pp:
+    print(pp)
+   else:
+    pass
 
 # wow, look at the robust parser!
 pp.pop(0)       # blank line
