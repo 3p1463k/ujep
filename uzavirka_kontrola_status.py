@@ -4,15 +4,18 @@ import pandas as pd
 from selenium import webdriver
 
 
-path_to_disk = '/home/evzen'
+path_to_disk = r"D:\DIFF_NONE"
+os.chdir(path_to_disk)
+files =  sorted(os.listdir(os.getcwd()), key=os.path.getmtime) 
 
 driver = webdriver.Chrome()
 #Load the site
 driver.get("htpp://")
 # count number of videos
-number_of_videos = sum(os.path.isdir(path_to_disk))
-print("We gonna process: " + number_of_videos)
+number_of_videos = sum(os.path.isdir(folder) for folder in os.listdir(path_to_disk))
+print("We'r gonna process: " + number_of_videos)
 print("Starting up, Vypoustim Krakena")
+
 
 for i in path_to_disk:
 
